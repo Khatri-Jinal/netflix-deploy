@@ -11,16 +11,17 @@ Modal.setAppElement("#__next");
 function VideoId({ video }) {
   const [toggleLike, setToggleLike] = useState(false);
   const [toggleDisLike, setToggleDisLike] = useState(false);
-
   const router = useRouter();
   const videoId = router.query.videoId;
   const { title, publishTime, description, channelTitle, statistics } = video;
+
   const response = async () => {
     const response = await fetch(`../api/stats?videoId=${videoId}`, {
       method: "GET",
     });
 
     const data = await response.json();
+
     if (data?.length > 0) {
       const favourited = data[0].favourited;
       if (favourited === 1) {
@@ -51,12 +52,12 @@ function VideoId({ video }) {
 
   const handleToggleDislike = async () => {
     const val = !toggleDisLike;
-
     setToggleDisLike(val);
     setToggleLike(toggleDisLike);
     const favourited = val ? 0 : 1;
     await runRatingService(favourited);
   };
+
   const handleToggleLike = async () => {
     const val = !toggleLike;
     const favourited = val ? 1 : 0;

@@ -19,14 +19,12 @@ function Login() {
     if (email) {
       if (email.includes(".com")) {
         setIsLoading(true);
-        // router.push('/');
         try {
           const didToken = await magic.auth.loginWithMagicLink({
             email,
           });
 
           if (didToken) {
-            // setIsLoading(false);
             const response = await fetch("/api/login", {
               method: "POST",
               headers: {

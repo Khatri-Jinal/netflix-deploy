@@ -7,6 +7,7 @@ import "../styles/globals.css";
 function MyApp({ Component, pageProps }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
   useEffect(() => {
     const checkLogin = async () => {
       const isLoggedIn = await magic.user.isLoggedIn();
@@ -30,7 +31,6 @@ function MyApp({ Component, pageProps }) {
     };
   }, [router]);
   return isLoading ? <Loading /> : <Component {...pageProps} />;
-  //return isLoading ? <Loading /> : <Component {...pageProps} />;
 }
 
 export default MyApp;

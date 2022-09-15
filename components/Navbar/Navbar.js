@@ -10,17 +10,21 @@ import { removeTokenCookie } from "../../lib/cookies";
 function Navbar() {
   const [userName, setUserName] = useState(" ");
   const [showDropDown, setShowDropDown] = useState(false);
+
   const handleOnClickHome = (e) => {
     e.preventDefault();
     router.push("/");
   };
+
   const handleOnClickMyList = (e) => {
     e.preventDefault();
     router.push("/browse/my-list");
   };
+
   const handleDropDown = () => {
     setShowDropDown((val) => !val);
   };
+
   useEffect(() => {
     const user = async () => {
       try {
@@ -35,11 +39,12 @@ function Navbar() {
     };
     user();
   }, []);
+
   const router = useRouter();
+
   const handleSignout = async (e) => {
     e.preventDefault();
     const didToken = await magic.user.getIdToken();
-
     try {
       const response = await fetch("/api/logout", {
         method: "POST",
@@ -48,7 +53,6 @@ function Navbar() {
           "Content-Type": "application/json",
         },
       });
-
       const res = await response.json();
       removeTokenCookie(res);
     } catch (error) {

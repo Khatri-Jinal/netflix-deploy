@@ -8,6 +8,7 @@ import { getVideos, getWatchItAgainVideos } from "../lib/videos";
 
 export async function getServerSideProps(context) {
   const { userId, token } = await useRedirectUsers(context);
+
   if (!userId) {
     return {
       props: {},
@@ -76,5 +77,3 @@ export default function Home({
     </div>
   );
 }
-
-///api: AIzaSyDNxvm3CUAMHuW0grjJGtjqHP4m6CEKhQ0

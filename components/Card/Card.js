@@ -10,15 +10,19 @@ function Card({ imgUrl, size = "medium", id, shouldScale = true }) {
     medium: styles.mdItem,
     small: styles.smItem,
   };
+
   const [imgSrc, setImgSrc] = useState(imgUrl);
+
   const handleError = () => {
     setImgSrc(imgUrl);
   };
+
   const scale = id === 0 ? { scaleY: 1.1 } : { scale: 1.1 };
 
   const shouldHover = shouldScale && {
     whileHover: { ...scale },
   };
+
   return (
     <div>
       <motion.div

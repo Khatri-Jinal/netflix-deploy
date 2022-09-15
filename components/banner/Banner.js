@@ -5,6 +5,7 @@ import styles from "./Banner.module.css";
 
 function Banner({ title, subTitle, imgUrl, videoId }) {
   const router = useRouter();
+
   const handleOnPlay = (e) => {
     e.preventDefault();
     router.push(`video/${videoId}`);
@@ -50,5 +51,3 @@ function Banner({ title, subTitle, imgUrl, videoId }) {
 }
 
 export default Banner;
-
-//alt
