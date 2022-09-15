@@ -1,16 +1,69 @@
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
+import DisLike from "../../components/icons/dislike-icon";
+import Like from "../../components/icons/like-icon";
 import Navbar from "../../components/Navbar/Navbar";
 import { getYoutubeVideoById } from "../../lib/videos";
 import styles from "./Video.module.css";
 
 Modal.setAppElement("#__next");
 function VideoId({ video }) {
-  console.log("my video", video);
+  const [toggleLike, setToggleLike] = useState(false);
+  const [toggleDisLike, setToggleDisLike] = useState(false);
+
   const router = useRouter();
+  const videoId = router.query.videoId;
   const { title, publishTime, description, channelTitle, statistics } = video;
-  console.log("view", statistics);
+  const response = async () => {
+    const response = await fetch(`../api/stats?videoId=${videoId}`, {
+      method: "GET",
+    });
+
+    const data = await response.json();
+    if (data?.length > 0) {
+      const favourited = data[0].favourited;
+      if (favourited === 1) {
+        setToggleLike(true);
+      } else if (favourited === 0) {
+        setToggleDisLike(true);
+      }
+    }
+  };
+
+  useEffect(() => {
+    response();
+  }, []);
+
+  const runRatingService = async (favourited) => {
+    return await fetch("../api/stats", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        favourited,
+        videoId,
+        watched: true,
+      }),
+    });
+  };
+
+  const handleToggleDislike = async () => {
+    const val = !toggleDisLike;
+
+    setToggleDisLike(val);
+    setToggleLike(toggleDisLike);
+    const favourited = val ? 0 : 1;
+    await runRatingService(favourited);
+  };
+  const handleToggleLike = async () => {
+    const val = !toggleLike;
+    const favourited = val ? 1 : 0;
+    setToggleLike(val);
+    setToggleDisLike(toggleLike);
+    await runRatingService(favourited);
+  };
 
   return (
     <>
@@ -31,9 +84,25 @@ function VideoId({ video }) {
             type="text/html"
             width="100%"
             height="360"
-            src={`https://www.youtube.com/embed/${router.query.videoId}?autoplay=0&origin=http://example.com&controls=0&rel=0`}
+            src={`https://www.youtube.com/embed/${videoId}?autoplay=0&origin=http://example.com&controls=0&rel=0`}
             frameBorder="0"
           ></iframe>
+          <div className={styles.likeDislikeBtnWrapper}>
+            <div className={styles.likeBtnWrapper}>
+              <button onClick={handleToggleLike}>
+                <div className={styles.btnWrapper}>
+                  <Like selected={toggleLike} />
+                </div>
+              </button>
+            </div>
+            <div className={styles.dislikeBtnWrapper}>
+              <button onClick={handleToggleDislike}>
+                <div className={styles.btnWrapper}>
+                  <DisLike selected={toggleDisLike} />
+                </div>
+              </button>
+            </div>
+          </div>
           <div className={styles.modalBody}>
             <div className={styles.modalBodyContent}>
               <div className={styles.col1}>
@@ -60,17 +129,8 @@ function VideoId({ video }) {
   );
 }
 export async function getStaticProps(context) {
-  // const video = {
-  //   title: "Hi cute dog",
-  //   publishTime: "1990-01-01",
-  //   description:
-  //     "As middle schooler Emily Elizabeth struggles to fit in at home and at school, she discovers a small red puppy who is destined to become her best friend from a magical animal rescuer. When Clifford becomes a gigantic red dog in her New York City apartment and attracts the attention of a genetics company who wish to supersize animals, Emily and her clueless Uncle Casey have to fight the forces of greed as they go on the run across New York City and take a bite out of the Big Apple. Along the way, Clifford affects the lives of everyone around him and teaches Emily and her uncle the true meaning of acceptance and unconditional love. Based on the beloved Scholastic character, Clifford will teach the world how to love big.",
-  //   channelTitle: "Paramount Pictures",
-  //   viewCount: 100078,
-  // };
   const videoId = context.params.videoId;
   const videoArray = await getYoutubeVideoById(videoId);
-  console.log("array", videoArray);
 
   return {
     props: {
@@ -83,16 +143,10 @@ export async function getStaticProps(context) {
 export async function getStaticPaths() {
   const listOfVideos = ["CEOc2bGV3j8", "4zH5iYM4wJo", "HxtLlByaYTc"];
 
-  // Get the paths we want to pre-render based on posts
   const paths = listOfVideos.map((videoId) => ({
     params: { videoId },
   }));
 
-  // We'll pre-render only these paths at build time.
-  // { fallback: blocking } will server-render pages
-  // on-demand if the path doesn't exist.
   return { paths, fallback: "blocking" };
 }
 export default VideoId;
-
-//GET https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&id=Ks-_Mh1QhMc&key=[YOUR_API_KEY] HTTP/1.1

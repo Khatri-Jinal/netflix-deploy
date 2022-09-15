@@ -16,7 +16,6 @@ function Login() {
   const handleLoginWithEmail = async (e) => {
     setuserMsg("");
     e.preventDefault();
-    console.log("btn...");
     if (email) {
       if (email.includes(".com")) {
         setIsLoading(true);
@@ -25,11 +24,22 @@ function Login() {
           const didToken = await magic.auth.loginWithMagicLink({
             email,
           });
-          console.log("token is", { didToken });
+
           if (didToken) {
             // setIsLoading(false);
-
-            router.push("/");
+            const response = await fetch("/api/login", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${didToken} `,
+              },
+            });
+            const loggedInResponse = await response.json();
+            if (loggedInResponse.done) {
+              router.push("/");
+            } else {
+              setIsLoading(false);
+              setuserMsg("Something went wrong logging in");
+            }
           }
         } catch (error) {
           setIsLoading(false);

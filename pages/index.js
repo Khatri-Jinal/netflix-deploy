@@ -4,17 +4,36 @@ import Banner from "../components/banner/Banner";
 import Card from "../components/Card/Card";
 import SectionCard from "../components/Card/Section-cards";
 import Navbar from "../components/Navbar/Navbar";
-import { startFetchMyQuery } from "../lib/db/hasura.js";
 import styles from "../styles/Home.module.css";
-import { getVideos } from "../lib/videos";
+import { verifyToken } from "../lib/db/utils";
+import useRedirectUsers from "../utils/redirectUsers";
+import { getVideos, getWatchItAgainVideos } from "../lib/videos";
 
-export async function getServerSideProps() {
-  const travelVideos = await getVideos("trav  el videos");
+export async function getServerSideProps(context) {
+  const { userId, token } = await useRedirectUsers(context);
+  if (!userId) {
+    return {
+      props: {},
+      redirect: {
+        destination: "/login",
+        permanent: true,
+      },
+    };
+  }
+  const travelVideos = await getVideos("travel videos");
   const productivityVideos = await getVideos("productivity");
   const disneyVideos = await getVideos("disney trailer");
   const popularVideos = await getVideos("popular");
+  const watchItAgainVideos = await getWatchItAgainVideos(userId, token);
+
   return {
-    props: { disneyVideos, productivityVideos, travelVideos, popularVideos },
+    props: {
+      disneyVideos,
+      productivityVideos,
+      travelVideos,
+      popularVideos,
+      watchItAgainVideos,
+    },
   };
 }
 
@@ -23,8 +42,8 @@ export default function Home({
   productivityVideos,
   travelVideos,
   popularVideos,
+  watchItAgainVideos,
 }) {
-  startFetchMyQuery();
   return (
     <div className={styles.container}>
       <Head>
@@ -43,6 +62,11 @@ export default function Home({
         />
         <div className={styles.sectionWrapper}>
           <SectionCard title="Disney" size="large" videos={disneyVideos} />
+          <SectionCard
+            title="Watch It Again"
+            size="small"
+            videos={watchItAgainVideos}
+          />
           <SectionCard title="Travel" size="small" videos={travelVideos} />
           <SectionCard
             title="Productivity"
@@ -55,3 +79,5 @@ export default function Home({
     </div>
   );
 }
+
+///api: AIzaSyDNxvm3CUAMHuW0grjJGtjqHP4m6CEKhQ0

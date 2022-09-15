@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { magic } from "../../lib/magic-client";
+import { removeTokenCookie } from "../../lib/cookies";
 
 function Navbar() {
   const [userName, setUserName] = useState(" ");
@@ -25,7 +26,6 @@ function Navbar() {
       try {
         const { email, issuer } = await magic.user.getMetadata();
         const didToken = await magic.user.getIdToken();
-        console.log({ didToken });
         if (email) {
           setUserName(email);
         }
@@ -36,17 +36,27 @@ function Navbar() {
     user();
   }, []);
   const router = useRouter();
+  const handleSignout = async (e) => {
+    e.preventDefault();
+    const didToken = await magic.user.getIdToken();
 
-  const handleLogout = async () => {
     try {
-      await magic.user.logout();
-      console.log(await magic.user.isLoggedIn());
-      router.push("/login");
+      const response = await fetch("/api/logout", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${didToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const res = await response.json();
+      removeTokenCookie(res);
     } catch (error) {
-      console.log("error logging out", error);
+      console.error("Error logging out", error);
       router.push("/login");
     }
   };
+
   return (
     <div className={styles.container}>
       <div className={styles.wrapper}>
@@ -85,7 +95,7 @@ function Navbar() {
             {showDropDown && (
               <div className={styles.navDropdown}>
                 <div>
-                  <button className={styles.linkName} onClick={handleLogout}>
+                  <button className={styles.linkName} onClick={handleSignout}>
                     Sign out
                   </button>
 
