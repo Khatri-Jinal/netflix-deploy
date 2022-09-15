@@ -1,6 +1,5 @@
 import { magicAdmin } from "../../lib/magic.js";
 import jwt from "jsonwebtoken";
-//import { User } from "../../lib/db/hasura.js";
 import { isNewUser, createNewUser } from "../../lib/db/hasura.js";
 import { setTokenCookie } from "../../lib/cookies.js";
 

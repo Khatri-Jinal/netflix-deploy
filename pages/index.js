@@ -1,11 +1,8 @@
 import Head from "next/head";
-import Image from "next/image";
 import Banner from "../components/banner/Banner";
-import Card from "../components/Card/Card";
 import SectionCard from "../components/Card/Section-cards";
 import Navbar from "../components/Navbar/Navbar";
 import styles from "../styles/Home.module.css";
-import { verifyToken } from "../lib/db/utils";
 import useRedirectUsers from "../utils/redirectUsers";
 import { getVideos, getWatchItAgainVideos } from "../lib/videos";
 
